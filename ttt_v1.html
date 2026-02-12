@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- https://dlonergan.github.io/DGMD28/ttt_v1.html -->  
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGMD E-28: tic-tac-toe Part 1</title>
+
+    <style>
+ 
+      #main {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+      }
+
+      .row {
+      }    
+          
+      .box {
+        max-width: 100px;
+        min-height: 100px;
+        width: 100%;
+        border: 1px solid #999;
+        display: inline-block;
+        box-sizing: border-box;
+        margin: 5px;
+        vertical-align: top;
+        text-align: center;
+        font-size: 40px;
+        padding-top: 30px; 
+      }    
+
+
+      .box:hover {
+         background-color: grey;
+      }
+
+      .turn-message {
+        font-size: 25px;
+        padding-bottom: 20px;  
+      }    
+
+      .start-button-container {
+        margin-top: 20px;  
+      }    
+
+      .start-button {
+        font-size: 30px;  
+      }    
+
+      .game-info-link {
+        margin-top: 20px;  
+      }    
+
+    </style>
+
+  </head>
+  <body>
+    <div id="main">
+      <h1>Tic Tac Toe Game</h1>
+
+      <div class="turn-message">X's Turn</div>
+
+      <div class="row">
+        <div class="box"> </div>    
+        <div class="box">X</div>    
+        <div class="box">X</div>   
+      </div>  
+
+      <div class="row">
+        <div class="box"> </div>    
+        <div class="box"> </div>    
+        <div class="box"> </div>   
+      </div>  
+
+      <div class="row">
+        <div class="box"> </div>    
+        <div class="box"> </div>    
+        <div class="box">O</div>   
+      </div>  
+
+      <div class="start-button-container"> 
+      <button class="start-button">Start Game</button>
+      </div> 
+
+      <div class="game-info-link">
+        <a target="_blank" 
+           href="https://en.wikipedia.org/wiki/Tic-tac-toe">About the game Tic-tac-toe</a>
+      </div>
+
+    </div> <!-- main -->
+  <body>
+</html>
