@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- https://dlonergan.github.io/DGMD28/practice.html -->  
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGMD E-28: Assignment 3, Practice</title>
+  </head>
+
+  <body>
+    <h1>Practice Exercises</h1>
+
+    <h2>Times Table</h2> 
+
+    <script>
+        
+    function getNumber()
+    {
+       do 
+       {
+         number = prompt("Enter a positive integer or 0 to skip")
+       } while (isNaN(number) || number < 0)
+      
+       return number;
+    }
+
+    function timesTable(number) {
+      document.write("<table>");
+      for (let i = 1; i <= 12; i++) {
+          document.write("<tr><td>" + number + "</td><td>*</td><td>"
+            + i + "</td><td> = </td><td>" 
+            + (i * number) + "</td></tr>");  
+      }    
+      document.write("</table>");
+    }    
+
+    number = getNumber();
+    if (number != 0) {
+      timesTable(number);  
+    }    
+
+    </script>
+
+    <h2>Temperature Conversion</h2> 
+
+    <script>
+
+      function fahr2cels(ftemp) { 
+        return ((ftemp - 32) * 5) / 9;   
+      }    
+
+      function format(ftemp) {
+          document.write(ftemp + "f is " + fahr2cels(ftemp).toFixed(2) + "c<br>"); 
+      }
+
+      format(32);
+      format(212);
+      format(0);
+      format(70);
+      format(100);
+      format(-40);
+
+    </script>
+
+  <body>
+</html>
