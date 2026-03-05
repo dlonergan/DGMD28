@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- https://dlonergan.github.io/DGMD28/ttt_v5.html -->  
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGMD E-28: Assignment 5, tic-tac-toe Part 5</title>
+
+    <style>
+ 
+      #main {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+        max-width: 330px;
+      }
+
+      .row {
+      }    
+          
+      .square {
+        max-width: 100px;
+        min-height: 100px;
+        width: 100%;
+        border: 1px solid #999;
+        display: inline-block;
+        box-sizing: border-box;
+        margin: 5px;
+        vertical-align: top;
+        text-align: center;
+        font-size: 40px;
+        padding-top: 30px; 
+      }    
+
+
+      .square:hover {
+         background-color: grey;
+      }
+
+      #turn-message {
+        font-size: 25px;
+        padding-top: 10px;  
+        padding-bottom: 10px;  
+        border: 1px solid #999;
+        width: 120px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 20px;
+      }    
+
+      #start-button-container {
+        margin-top: 20px;  
+      }    
+
+      #start-button {
+        font-size: 30px;  
+      }    
+
+      #game-info-link {
+        margin-top: 20px;  
+      }    
+
+    </style>
+
+    <script>
+      turnMessageObj = null; 
+      xToMove = 0;  
+      gameComplete = false;
+
+      function createMoves() {
+        return [...Array(9).keys()].map(i => {
+          id = "sq"+i; 
+          value = document.getElementById(id).innerHTML;
+              if (value == "X" || value == "O") {
+                return value
+              }
+              else {
+                return "-";    
+              }      
+          });
+      }    
+ 
+      function createWinConditions(moves) {
+        return [
+          // rows  
+          moves.slice(0, 3).join(''),
+          moves.slice(3, 6).join(''),
+          moves.slice(6, 9).join(''),
+
+          // columns  
+          moves[0] + moves[3] + moves[6],
+          moves[1] + moves[4] + moves[7],
+          moves[2] + moves[5] + moves[8],
+
+          // diagonals  
+          moves[0] + moves[4] + moves[8],
+          moves[2] + moves[4] + moves[6]
+        ];     
+      }
+
+      function squareHandler() {
+        // console.dir(this);  
+        // let idx = parseInt(this.id[2]);   
+        if (this.innerHTML == "X" || this.innerHTML == "O"
+            || gameComplete) { // noop 
+          return;  
+        }    
+        else {
+          if (xToMove == 1) { 
+            this.innerHTML = "X";
+            xToMove = 0;  
+          }    
+          else {
+            this.innerHTML = "O";
+            xToMove = 1;  
+          }    
+          setTurnMessage();
+        }
+        moves = createMoves();  
+        //console.log(moves);  
+        winConditions = createWinConditions(moves);  
+        //console.log(winConditions);  
+
+        if (winConditions.includes("XXX")) {
+          gameComplete = true;  
+          turnMessageObj.innerHTML = "X Wins";
+        }
+        else if (winConditions.includes("OOO")) {
+          turnMessageObj.innerHTML = "O Wins";
+          gameComplete = true;  
+        }        
+
+        if (moves.indexOf("-") == -1) {
+          turnMessageObj.innerHTML = "Stalemate";
+          gameComplete = true;  
+        }    
+
+      } // end squareHandler()      
+
+      function setTurnMessage() {
+        if (xToMove == 1) { 
+          turnMessageObj.innerHTML = "X's Turn";
+        }    
+        else {
+          turnMessageObj.innerHTML = "O's Turn";
+        }    
+      }          
+
+      function clearSquares() {
+        const NUM_SQUARES = 9; 
+        for (i=0; i<NUM_SQUARES; i++) 
+        { 
+          id = "sq"+i; 
+          document.getElementById(id).innerHTML = "";
+        } 
+      }    
+
+      function startGame() {
+        gameComplete = false;  
+        turnMessageObj = document.getElementById("turn-message");
+        xToMove = Math.random().toFixed();  
+        setTurnMessage()  
+      }    
+
+      function startHandler() {
+        clearSquares();
+        startGame();  
+      }
+
+      window.onload = function() {
+        for (i = 0;i<NUM_SQUARES; i++) {
+          id = "sq"+i; 
+          document.getElementById(id).addEventListener("click", squareHandler);
+        }    
+        document.getElementById("start-button").addEventListener("click", startHandler);
+
+        startGame();  
+      } // end window onload
+
+
+    </script>
+
+  </head>
+  <body>
+    <div id="main">
+      <h1>Tic Tac Toe Game</h1>
+
+      <div id="turn-message">?'s Turn</div>
+
+    <script>
+        //-----------------------------------------------  
+        // REQUIREMENT: THIS CODE MAY NOT BE CHANGED!!!!!   
+        const NUM_SQUARES = 9; 
+        for (i=0; i<NUM_SQUARES; i++) 
+        { 
+          id = "sq"+i; 
+          document.write( "<div class='square' id='" + id + "'></div>" ); 
+        } 
+        // END OF REQUIREMENT
+        //-----------------------------------------------  
+
+      </script>
+
+      <div id="start-button-container"> 
+      <button id="start-button">Start Game</button>
+      </div> 
+
+      <div id="game-info-link">
+        <a target="_blank" 
+           href="https://en.wikipedia.org/wiki/Tic-tac-toe">About the game Tic-tac-toe</a>
+      </div>
+
+    </div> <!-- main -->
+  <body>
+</html>
