@@ -68,6 +68,8 @@
       xToMove = 0;  
       gameComplete = false;
 
+      // Create the moves array using the values of the nine square div's 
+      // Example: ["X, O, O, X, X, -, O, -, -"] where "-" means empty square
       function createMoves() {
         return [...Array(9).keys()].map(i => {
           id = "sq"+i; 
@@ -79,8 +81,13 @@
                 return "-";    
               }      
           });
-      }    
- 
+      } // end createMoves   
+
+      /*
+         Create the conditions array of eight strings, for example
+         ["X, O, O, X, X, -, O, -, -"] produces 
+         [“XOO” ,  “XX-” ,  “O--“ , “XXO”, ...] 
+      */
       function createWinConditions(moves) {
         return [
           // rows  
@@ -97,8 +104,15 @@
           moves[0] + moves[4] + moves[8],
           moves[2] + moves[4] + moves[6]
         ];     
-      }
+      } // end createWinConditions
 
+      /*
+         Handle click event on any of the nine square div's
+         Evaluates if the game has been won or stalemated and if so,
+         sets the completion message
+         If allowed, write X or O to the appropriate square div
+         Sets the gameComplete boolean to true if there is a win or a stalemate
+      */
       function squareHandler() {
         // console.dir(this);  
         // let idx = parseInt(this.id[2]);   
@@ -138,6 +152,8 @@
 
       } // end squareHandler()      
 
+      // Called to set the turn-message div to X's or O's turn
+      // The game completion messages are set in squareHandler 
       function setTurnMessage() {
         if (xToMove == 1) { 
           turnMessageObj.innerHTML = "X's Turn";
@@ -145,8 +161,9 @@
         else {
           turnMessageObj.innerHTML = "O's Turn";
         }    
-      }          
+      } // end setTurnMessage         
 
+      // Clear all the square div's to empty string
       function clearSquares() {
         const NUM_SQUARES = 9; 
         for (i=0; i<NUM_SQUARES; i++) 
@@ -154,20 +171,26 @@
           id = "sq"+i; 
           document.getElementById(id).innerHTML = "";
         } 
-      }    
+      } // end clearSquares   
 
+      // Start the game by randomly choosing if X or O starts first
+      // Sets the gameComplete boolean to false 
       function startGame() {
         gameComplete = false;  
         turnMessageObj = document.getElementById("turn-message");
         xToMove = Math.random().toFixed();  
         setTurnMessage()  
-      }    
+      } // end startGame()     
 
+      // Handles click event on the start button by clearing the board and 
+      // starting the game
       function startHandler() {
         clearSquares();
         startGame();  
-      }
+      } // end startHandler
 
+      // Set the handlers for the square div's and start button
+      // Starts a game
       window.onload = function() {
         for (i = 0;i<NUM_SQUARES; i++) {
           id = "sq"+i; 
