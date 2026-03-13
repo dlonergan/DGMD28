@@ -1,0 +1,157 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>Joe's Hotdogs 1</title>
+
+<!--
+Joe’s has only 4 items:  hotdogs, fries, soda and sauerkraut.  
+The cost of the items is $4, $3.50, $1.50, $1 respectively. 
+-->
+
+<style>
+  main {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+    max-width: 400px;
+  }
+
+  table {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+</style>
+
+
+<script>
+
+  /*
+   * Create menu as associative array
+   * returns associative array
+   */
+  function createAssocArray() {
+    let items = []
+    items["hotdogs"] = "$4.00"  
+    items["fries"] = "$3.50"   
+    items["soda"] = "$1.50"   
+    items["sauerkraut"] = "$1.00"   
+    return items      
+  }
+
+  /*
+   * Create menu as object
+   * returns object
+   */
+  function createObject() {
+    let items = {   
+      "hotdogs": "$4.00",  
+      "fries": "$3.50",   
+      "soda": "$1.50",   
+      "sauerkraut": "$1.00"   
+    }    
+    return items      
+  }
+
+  /*
+   * Create menu using class
+   * returns an array of class instances
+   */
+  function createWithClass() {
+    function MenuItem(name, price) {
+      this.name = name
+      this.price = price
+    };    
+    return [
+      new MenuItem("hotdogs", "$4.00"),
+      new MenuItem("fries", "$3.50"),
+      new MenuItem("soda", "$1.50"),
+      new MenuItem("sauerkraut", "$1.00"),
+    ]    
+  }    
+
+  /*
+   * HTML output to put above a menu
+   * input: an object with the write functions of document
+   * input: a title for this version of the menu
+   * returns nothing
+   */
+  function outputMenuHeader(doc, header) {
+    doc.writeln(`<h2>${header}</h2>`)  
+      doc.writeln('<table>')   
+  }    
+
+  /*
+   * HTML output to put below a menu
+   * input: an object with the write functions of document
+   * returns nothing
+   */
+  function outputMenuFooter(doc) {
+      doc.writeln('</table><hr>')   
+  }    
+
+  /*
+   * HTML and data output for a menu item 
+   * input: an object with the write functions of document
+   * input: the name of the menu item
+   * input: the formatted price of the data item
+   * returns nothing
+   */
+  function outputMenuLine(doc, name, price) {
+    doc.write(`<tr><td>${name}</td><td>${price}</td></tr>`);  
+  }    
+
+  /*
+   * Create a menu from a key-value compatible data object
+   * input: an object with the write functions of document
+   * input: a key-value compatible data object
+   * input: a title for the menu header
+   * returns nothing
+   */
+  function menu(doc, items, header) { 
+    outputMenuHeader(doc, header) 
+    for (item in items) {
+      outputMenuLine(doc, item, items[item]);  
+    }
+    outputMenuFooter(document)  
+  }    
+
+  /*
+   * Create a menu from a compatible class instance
+   * input: an object with the write functions of document
+   * input: an array of instance objects with fields name and price 
+   * input: a title for the menu header
+   * returns nothing
+   */
+  function menuClass(doc, items, header) { 
+    outputMenuHeader(doc, header) 
+    items.forEach(itemInst => {
+      outputMenuLine(doc, itemInst.name, itemInst.price);  
+    });    
+    outputMenuFooter(document)  
+  }
+
+  window.onload = function() {
+  } // end window onload
+
+</script>
+
+</head>
+
+
+<body>
+      
+  <main>  
+  <h1>Joe's Hotdogs 1</h1>   
+  <script>
+    menu(document, createAssocArray(), "Using an associative array")   
+    menu(document, createObject(), "Using an object")   
+    menuClass(document, createWithClass(), "Using a class")   
+  </script>
+  </main>  
+
+</body>
+</html>

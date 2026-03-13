@@ -1,0 +1,239 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>Joe's Hotdogs 2</title>
+
+<!--
+Joe’s has only 4 items:  hotdogs, fries, soda and sauerkraut.  
+The cost of the items is $4, $3.50, $1.50, $1 respectively. 
+-->
+
+<style>
+  main {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+    max-width: 400px;
+    font-size: large;
+  }
+
+  table {
+    margin-left: auto;
+    margin-right: auto;
+    border-spacing: 10px;
+  }
+
+  option {
+    font-size: large;
+  }    
+
+  .button-container {
+    margin-top: 20px;  
+  }    
+
+  button {
+    font-size: 30px;  
+  }    
+
+</style>
+
+
+<script>
+
+  /*
+   * Create menu offerings as associative array
+   * returns associative array
+   * Note: The prices are in display format.
+   */
+  function createAssocArray() {
+    let items = []
+    items["hotdogs"] = "$4.00"  
+    items["fries"] = "$3.50"   
+    items["soda"] = "$1.50"   
+    items["sauerkraut"] = "$1.00"   
+    return items      
+  }
+
+  /*
+   * Create an associative array of offerings with *numeric* price
+   * input: the display associative array created in createAssocArray 
+   * returns nothing
+   */
+  function createPriceArray(items) {
+    let result = []
+    for (let item in items) {
+      result[item] = parseFloat(items[item].substring(1))  
+    }    
+    return result
+  }    
+
+
+  /*
+   * initialize the preexisting cart to zero for all offerings 
+   * input: the display associative array created in createAssocArray 
+   * returns nothing
+   */
+  function initializeCart(items) {
+    for (let item in items) {
+      cart[item] = 0  
+    }    
+    displayCart()  
+  }    
+
+  /*
+   * displays the global cart variable contents in the cart div 
+   * returns nothing
+   */
+  function displayCart() {
+    let html = '<table>'
+    html += '<tr><th>Offering</th><th>Quanity</th></tr>'
+    for (let item in cart) {
+      if (cart[item] > 0) {
+          html += `<td>${item}</td><td>${cart[item]}</td></tr>`  
+      }    
+    }    
+    html += '</table>'  
+    cartDiv.innerHTML = html    
+  }    
+
+  /*
+   * HTML output to put above a menu
+   * input: an object with the write functions of document
+   * input: a title for this version of the menu
+   * returns nothing
+   */
+  function outputMenuHeader(doc, header) {
+    doc.writeln(`<h2>${header}</h2>`)  
+    doc.writeln('<table>')   
+    doc.writeln('<tr><th>Offering</th><th>Price</th></tr>')   
+  }    
+
+  /*
+   * HTML output to put below a menu
+   * input: an object with the write functions of document
+   * returns nothing
+   */
+  function outputMenuFooter(doc) {
+      doc.writeln('</table><hr>')   
+  }    
+
+  /*
+   * HTML and data output for a menu offering 
+   * input: an object with the write functions of document
+   * input: the name of the menu item
+   * input: the formatted price of the data item
+   * returns nothing
+   */
+  function outputMenuLine(doc, name, price) {
+    doc.write(`<tr><td>${name}</td><td>${price}</td></tr>`);  
+  }    
+
+  /*
+   * create a select element of menu offerings 
+   * input: an object with the write functions of document
+   * input: the display associative array created in createAssocArray 
+   * input: a heading text string for the select element
+   * returns nothing
+   */
+  function select(doc, items, heading) { 
+    doc.write(`<h2>${heading}</h2>`);
+    doc.write('<select name="offerings" id="offerings" multiple>')   
+    for (let item in items) {
+      let name = item
+      let price = items[item]
+      doc.write(`<option value="${price}">${name}</option>`);  
+    }
+    doc.write('</select>')   
+  }    
+
+  /*
+   * Create a menu from a key-value compatible data object
+   * input: an object with the write functions of document
+   * input: a key-value compatible data object
+   * input: a title for the menu header
+   * returns nothing
+   */
+  function menu(doc, items, header) { 
+    outputMenuHeader(doc, header) 
+    for (item in items) {
+      outputMenuLine(doc, item, items[item]);  
+    }
+    outputMenuFooter(document)  
+  }    
+  
+  /* event handler for the add to cart button
+     which adds selected items to the cart  */
+  function addToCartHandler() {
+    let picks = offerings.selectedOptions  
+    for (let i = 0; i < picks.length; i++) {
+      cart[picks[i].text] += 1
+    }
+    displayCart()  
+  }    
+
+  /* event handler for the checkout button */
+  function checkoutHandler() {
+    let msg = ''
+    let grandTotal = 0.0  
+
+    for (let item in cart) {
+      if (cart[item] > 0) { 
+        total = cart[item] * priceData[item]  
+        msg += (item + ": qty: " + cart[item] + " total: $" + total + "\n")
+        grandTotal += total
+      }    
+    }     
+    msg += ("\nGrand Total: $" + grandTotal)
+    alert(msg)        
+    initializeCart(displayData)  
+    // https://www.w3schools.com/jsref/prop_select_selectedindex.asp 
+    offerings.selectedIndex = -1  
+  }    
+
+  window.onload = function() {
+    offerings = document.getElementById("offerings");
+    cartDiv = document.getElementById("cart");
+    priceData = createPriceArray(displayData) // global menu offerings in calculation format
+    cart = [] // the global cart of selected offerings and quantities 
+    initializeCart(displayData)  
+
+    document.getElementById("add-to-cart-button").
+          addEventListener("click", addToCartHandler);
+    document.getElementById("checkout-button").
+          addEventListener("click", checkoutHandler);
+  } // end window onload
+
+</script>
+
+</head>
+
+
+<body>
+      
+  <main>  
+  <h1>Joe's Hotdogs 2</h1>   
+  <script>
+    displayData = createAssocArray() // global menu offerings in display format   
+    menu(document, displayData, "Our Menu")   
+    select(document, displayData, "Select one or more of our offerings")   
+  </script>
+
+  <div class="button-container"> 
+    <button id="add-to-cart-button">Add to Cart</button>
+  </div> 
+
+  <h2>Cart</h2>
+  <div id="cart"></div>
+  <hr>
+
+  <div class="button-container"> 
+    <button id="checkout-button">Checkout</button>
+  </div> 
+
+  </main>  
+
+</body>
+</html>
