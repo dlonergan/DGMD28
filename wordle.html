@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- https://dlonergan.github.io/DGMD28/wordle.html -->  
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGMD E-28: midterm project wordle</title>
+
+    <style>
+ 
+      #top1 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10px; 
+        text-align: center;
+        font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+        max-width: 450px;
+        min-width: 450px;
+      }
+
+      #top2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10px; 
+        text-align: center;
+        font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+        max-width: 450px;
+        min-width: 450px;
+      }
+
+      #top3 {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+        max-width: 450px;
+        min-width: 450px;
+      }
+
+      #top4 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10px; 
+        text-align: center;
+        font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+        max-width: 450px;
+        min-width: 450px;
+        font-size: 30px;
+      }
+
+      #guess {
+        font-size: 25px;
+        max-width: 100px;
+      }
+
+      #guess-button {
+        font-size: 25px;
+        margin-top: 10px; 
+      }
+
+      .square1 {
+        max-width: 75px;
+        min-height: 75px;
+        width: 100%;
+        border: 1px solid #999;
+        display: inline-block;
+        box-sizing: border-box;
+        margin: 2px;
+        vertical-align: top;
+        text-align: center;
+        font-size: 50px;
+        padding-top: 10px; 
+      }    
+
+      .square2 {
+        max-width: 43px;
+        min-height: 43px;
+        width: 100%;
+        border: 1px solid #999;
+        display: inline-block;
+        box-sizing: border-box;
+        margin: 2px;
+        vertical-align: top;
+        text-align: center;
+        font-size: 30px;
+        /* padding-top: 10px; */
+      }    
+
+      #status-message {
+        font-size: 25px;
+        padding-top: 5px;  
+        padding-bottom: 5px;  
+        border: 1px solid #999;
+        width: 220px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 10px;
+      }    
+
+      #start-button-container {
+        margin-top: 20px;  
+      }    
+
+      #start-button {
+        font-size: 25px;  
+      }    
+
+      #game-info-link {
+        margin-top: 20px;  
+      }    
+
+    </style>
+
+    <script type="module">
+
+      // constants for this module
+      const WORDLEN = 5;
+      const MAX_ATTEMPTS = 6;
+  
+      let words = [];
+      // Using this API call we get a list of WORDLEN letter words
+      async function getFiveLetterWords() {
+        try {
+          const request = "https://corsproxy.io/?url=" +
+            "https://api.frontendexpert.io/api/fe/wordle-words"; 
+          let res = await 
+            fetch(request);    
+          if (!res.ok) {
+            throw new Error("fetch failed");
+          }
+          let response = await res.json();
+          words = JSON.parse(response);
+          // console.log(words);
+        }
+        catch (err) {
+          console.log("call to API wordle-words failed, manually adding words")
+          words.push("CLASP");    
+          words.push("APPLE");    
+          words.push("FRUIT");    
+          words.push("CLASS");    
+          words.push("CODES");    
+        }
+        console.log(`${words.length} solution words added`); 
+        return words;    
+      }    
+  
+      // list of possible solution words 
+      let candidateWords = await getFiveLetterWords(); 
+  
+      // randomly pick one of the solution words to start the game
+      function getNewSolution() {
+        let idx = Math.floor((Math.random() * candidateWords.length));  
+        return candidateWords[idx];  
+      }    
+  
+      /*
+         This class is used to encapsulate the state of the game 
+           letter codes:
+             G = letter in word in correct position
+             Y = letter in word but not in correct position
+             X = letter not in word
+           These codes are used in keyboardLetterMap and in 
+           the return value of matchAttemptToSolution 
+      */
+      class Game {
+        constructor(solution) {
+          this.solution = solution;    // solution to the current game  
+          this.keyboardLetterMap = []; // Which letters have been used in the game
+                                       // key is letter (A-Z), value is G, Y, X, or "" 
+          this.numAttempts = 0;        // number of attempts by player
+          this.gameComplete = false;   // is the game complete
+          this.initKeyboardLetterMap();
+          this.won = false;            // has the player won 
+        }    
+  
+        // set the values to empty string  
+        initKeyboardLetterMap() {
+          const CAP_A = 65;
+          for (let i = 0; i < 26; i++) {
+            let c = String.fromCharCode(CAP_A + i);
+            this.keyboardLetterMap[c] = "";    
+          }
+        }      
+      }
+  
+      // match the attempt word to the solution word looking for
+      // exact position matches, inclusion matches, and exclusions
+      Game.prototype.matchAttemptToSolution = function(attempt) {
+        let colorResults = ["X", "X", "X", "X", "X"];  
+        let solutionLettersClaimed = ["X", "X", "X", "X", "X"];  
+        let numMatches = 0;  
+  
+        // here we're looking for exact matches  
+        for (let i = 0; i < WORDLEN; i++) {
+          if (attempt[i] == this.solution[i]) {
+            numMatches += 1;
+            colorResults[i] = "G";  
+            solutionLettersClaimed[i] = "G";
+          }    
+        }    
+  
+        // here we're looking for letters in the word but not exact matches 
+        for (let i = 0; i < WORDLEN; i++) { // looping though attempt
+          if (colorResults[i] != "X") { // attempt in this position already matched
+            continue;  
+          }    
+          for (let j = 0; j < WORDLEN; j++) { // looping though solution
+            if (solutionLettersClaimed[j] != "X") { 
+              continue;  
+            }    
+            if (attempt[i] == this.solution[j]) {
+              colorResults[i] = "Y";  
+              solutionLettersClaimed[j] = "Y";
+              break; // don't grab anymore solution letters  
+            }    
+          }    
+        }    
+  
+        // make sure we always upgrade a letter like Y to G or X to Y,G  
+        for (let i = 0; i < colorResults.length; i++) {  
+          switch (this.keyboardLetterMap[attempt[i]]) {
+            case "G":    
+              break;
+            case "Y":      
+              if (colorResults[i] == "G") {
+                this.keyboardLetterMap[attempt[i]] = colorResults[i];  
+              }    
+              break;
+            default:      
+              this.keyboardLetterMap[attempt[i]] = colorResults[i];  
+              break;
+          }    
+        }    
+  
+        // update the game state  
+        this.won = (numMatches === WORDLEN); 
+        ++this.numAttempts;  
+        if (this.won || this.numAttempts == MAX_ATTEMPTS) {
+          this.gameComplete = true;    
+        }    
+        return colorResults; 
+      }
+  
+      // check validity of attemp word and capitalize it
+      Game.prototype.processString = function(s) {
+        let err = null;  
+        let letters = [];  // array of characters 
+  
+        // make sure the string is valid (exactly five letters)  
+        if (s.length != WORDLEN) {
+          err = `word must be ${WORDLEN} characters`;  
+        }    
+  
+        let sUpper = [];  
+        // make sure the string is valid (all alphabetic)  
+        if (!err) {   
+          for (let i = 0; i < s.length; i++) { 
+            if (!s[i].match(/[a-z]/i)) {
+              err = "letters must be alphabetic";    
+              break;  
+            }
+            sUpper.push(s[i].toUpperCase());  
+          }      
+        }      
+  
+        return { letters: sUpper, errmsg: err }  
+      }
+  
+      let game = null;
+      function startGame() {
+        let solution = getNewSolution();
+        console.log("solution: ", solution);  
+        game = new Game(solution);  
+        return game;
+      }   
+  
+      // display error message
+      Game.prototype.displayError = function(msg) {
+        console.log(msg);
+        alert(msg);
+      }    
+  
+      // workaround for module scope
+      window.startGame = startGame;
+
+      // end of module code
+    </script>
+
+    <script>
+      "use strict";
+      let game = undefined;
+
+      // handle the start game button
+      function startHandler() {
+        game = startGame();  
+        clearGuessRows();
+        setUsedLetters(); 
+        setStatus();  
+        document.getElementById('guess').value = ""; // clear leftovers
+      }    
+
+      // show known letters with correct colors
+      function setUsedLetters() {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ';  
+        let alphaIdx = 0;  
+        for (let i = 0; i < 3; i++) 
+        { 
+          for (let j = 0; j < 9; j++) { 
+            const id = "sqx" + "-" + i + "-" + j; 
+            const square = document.getElementById(id);
+            const letter = alphabet[alphaIdx];
+            square.textContent = letter;
+            const knownState = game.keyboardLetterMap[letter];  
+            switch (knownState) {
+              case 'G':
+                square.style.backgroundColor = "lightgreen";   
+                break;    
+              case 'Y':      
+                square.style.backgroundColor = "yellow";   
+                break;    
+              case 'X':      
+                square.style.backgroundColor = "lightgrey";   
+                break;    
+              default:      
+                square.style.backgroundColor = "white";   
+            }      
+            ++alphaIdx;  
+          }    
+        } 
+      }    
+
+      // constants 
+      const MAX_ATTEMPTS = 6;
+      const WORDLEN = 5;
+
+      function setStatus() {
+        const status = document.getElementById("status-message");
+        if (game.gameComplete) {
+          if (game.won) {
+            status.textContent = "You Won"; 
+          } 
+          else {
+            status.textContent = "You Lost"; 
+          }
+        }     
+        else {
+            status.textContent = `${game.numAttempts} out of ${MAX_ATTEMPTS} Attempts`; 
+        }      
+      }    
+ 
+      // remove letters and set background to white
+      function clearGuessRows() {
+        for (let i = 0; i < MAX_ATTEMPTS; i++) 
+        { 
+          for (let j = 0; j < WORDLEN; j++) { 
+            let id = "sq" + "-" + i + "-" + j; 
+            const square = document.getElementById(id);
+            square.textContent = '';   
+            square.style.backgroundColor = "white";   
+          }    
+        } 
+      }
+
+      // set letter values for current guess row
+      function setGuessRow(letters, colorResults) {
+        const row = game.numAttempts - 1;  
+          for (let i = 0; i < WORDLEN; i++) {
+            const id = "sq" + "-" + row + "-" + i;     
+            const square = document.getElementById(id);
+            square.textContent = letters[i];   
+              
+            const knownState = colorResults[i];  
+            switch (knownState) {
+              case 'G':
+                square.style.backgroundColor = "lightgreen";   
+                break;    
+              case 'Y':      
+                square.style.backgroundColor = "yellow";   
+                break;  
+              case 'X':      
+                square.style.backgroundColor = "lightgrey";   
+                break;    
+              default:      
+                square.style.backgroundColor = "white";   
+            }      
+          }    
+      }    
+
+      // evaluate player attempt
+      function checkAttempt(attempt) {
+        let strResultObj = game.processString(attempt);
+        if (strResultObj.errmsg) {
+          game.displayError(strResultObj.errmsg); 
+          return;     
+        }    
+        let colorResults = game.matchAttemptToSolution(strResultObj.letters);
+        //console.log(colorResults);  
+        //console.log(game.keyboardLetterMap);
+        setUsedLetters(); 
+        setStatus(); 
+        setGuessRow(strResultObj.letters, colorResults);
+        document.getElementById('guess').value = "";
+      }    
+
+      function processGuess() {
+        if (typeof game == "undefined" || game.gameComplete) {
+          alert("Press Start Game");
+          return;  
+        }      
+        guess = document.getElementById('guess').value;
+        checkAttempt(guess);  
+      }    
+
+      window.onload = function() {
+        document.getElementById("start-button").addEventListener("click", startHandler);
+      }; // end window onload
+    </script>
+
+  </head>
+
+  <body>
+    <div id="top1">
+      <h2>Wordle</h2>
+
+      <div id="status-message">Press Start Game</div>
+
+      <script>
+        for (let i = 0; i < 6; i++) 
+        { 
+          for (let j = 0; j < 5; j++) { 
+            let id = "sq" + "-" + i + "-" + j; 
+            document.write("<div class='square1' id='" + id + "'></div>" ); 
+          }    
+        } 
+      </script>
+    </div> <!-- top1 --> 
+
+    <div id="top4">
+        <input type="text" id='guess' />
+        <button id='guess-button' onclick='processGuess()'>make guess</button>    
+    </div> <!-- top4 --> 
+
+    <div id="top2">
+      <script>
+        for (let i = 0; i < 3; i++) 
+        { 
+          for (let j = 0; j < 9; j++) { 
+            let id = "sqx" + "-" + i + "-" + j; 
+            document.write("<div class='square2' id='" + id + "'></div>" ); 
+          }    
+        } 
+      </script>
+    </div> <!-- top2 --> 
+
+    <div id="top3">
+      <div id="start-button-container"> 
+      <button id="start-button">Start Game</button>
+      </div> 
+
+      <div id="game-info-link">
+        <a target="_blank" 
+           href="https://www.nytimes.com/games/wordle/index.html">About the game Wordle</a>
+      </div>
+    </div> <!-- top3 -->
+
+  <body>
+</html>
+
