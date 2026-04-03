@@ -121,8 +121,7 @@
       // Using this API call we get a list of WORDLEN letter words
       async function getFiveLetterWords() {
         try {
-          const request = "https://corsproxy.io/?url=" +
-            "https://api.frontendexpert.io/api/fe/wordle-words"; 
+          const request = "https://api.frontendexpert.io/api/fe/wordle-words"; 
           let res = await 
             fetch(request);    
           if (!res.ok) {
