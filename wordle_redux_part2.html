@@ -446,7 +446,15 @@
 
       <script type='text/babel'>
 
-        // generalized JSX component to create groups of squares (redux2) 
+        /*  
+         * generalized JSX component to create groups of squares (redux2) 
+         * properties:
+         *   rows - number of rows of squares
+         *   columns - number of columns of squares
+         *   className - HTML class of the squares   
+         *   idPrefix - added to the begining of the HTML id's for uniqueness
+         */
+                     
         function Squares(props) {
           const elements = [];
           for (let i = 0; i < props.rows; i++) 
@@ -510,6 +518,6 @@
       </div>
     </div> <!-- top3 -->
 
-  <body>
+  </body>
 </html>
 
